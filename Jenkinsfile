@@ -6,10 +6,10 @@ pipeline {
     stages {
         stage('Setup') {
             steps {
-                // Install dependencies if requirements.txt exists
+                // Install dependencies and pytest
                 sh '''
+                    python3 -m pip install --upgrade pip pytest
                     if [ -f requirements.txt ]; then
-                        python3 -m pip install --upgrade pip
                         python3 -m pip install -r requirements.txt
                     fi
                 '''
@@ -23,7 +23,6 @@ pipeline {
         }
         stage('Test') {
             steps {
-                // Ensure test-reports directory exists
                 sh 'mkdir -p test-reports'
                 sh 'pytest --junitxml=test-reports/results.xml sources/test_calc.py'
             }
