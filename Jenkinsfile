@@ -4,12 +4,11 @@ pipeline {
         skipStagesAfterUnstable()
     }
     environment {
-        PATH = "${env.PATH}:~/.local/bin"
+        PATH = "${env.PATH}:/var/lib/jenkins/.local/bin"
     }
     stages {
         stage('Setup') {
             steps {
-                // Install dependencies and pytest
                 sh '''
                     python3 -m pip install --upgrade pip pytest
                     if [ -f requirements.txt ]; then
