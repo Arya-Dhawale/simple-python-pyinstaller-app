@@ -1,20 +1,31 @@
-
-
 pipeline {
     agent any
     options {
         skipStagesAfterUnstable()
     }
     stages {
+        stage('Setup') {
+            steps {
+                // Install dependencies if requirements.txt exists
+                sh '''
+                    if [ -f requirements.txt ]; then
+                        python3 -m pip install --upgrade pip
+                        python3 -m pip install -r requirements.txt
+                    fi
+                '''
+            }
+        }
         stage('Build') {
             steps {
-                sh 'python -m py_compile sources/add2vals.py sources/calc.py'
+                sh 'python3 -m py_compile sources/add2vals.py sources/calc.py'
                 stash(name: 'compiled-results', includes: 'sources/*.py*')
             }
         }
         stage('Test') {
             steps {
-                sh 'py.test --junit-xml test-reports/results.xml sources/test_calc.py'
+                // Ensure test-reports directory exists
+                sh 'mkdir -p test-reports'
+                sh 'pytest --junitxml=test-reports/results.xml sources/test_calc.py'
             }
             post {
                 always {
@@ -24,15 +35,14 @@ pipeline {
         }
         stage('Deliver') { 
             steps {
-                sh "pyinstaller --onefile sources/add2vals.py" 
+                sh "python3 -m pip install pyinstaller"
+                sh "pyinstaller --onefile sources/add2vals.py"
             }
             post {
                 success {
-                    archiveArtifacts 'dist/add2vals' 
+                    archiveArtifacts 'dist/add2vals*'
                 }
             }
         }
     }
 }
-
-
