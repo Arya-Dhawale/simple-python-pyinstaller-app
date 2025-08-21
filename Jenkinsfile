@@ -3,6 +3,9 @@ pipeline {
     options {
         skipStagesAfterUnstable()
     }
+    environment {
+        PATH = "${env.PATH}:~/.local/bin"
+    }
     stages {
         stage('Setup') {
             steps {
